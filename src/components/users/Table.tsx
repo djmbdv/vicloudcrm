@@ -3,15 +3,14 @@ import Paginator from "@components/Paginator";
 import type { Column } from "@components/Table";
 import Table from "@components/Table";
 import { TrashIcon } from "@heroicons/react/24/solid";
-import type { Item } from "@server/prismaClient";
+import type { User } from "@server/prismaClient";
 import trpc from "@utils/trpc";
 import type { FC } from "react";
 import { useState } from "react";
 
-const columns: Column<Item>[] = [
-  { title: "id", render: (item) => item.id.substring(0, 5) },
+const columns: Column<User>[] = [
+  { title: "id", render: (User) => User.id.substring(0, 5) },
   { title: "name", render: ({ name }) => name },
-  { title: "price", render: ({ price }) => price.toFixed(2) },
   {
     title: "actions",
     render: () => (
@@ -21,11 +20,11 @@ const columns: Column<Item>[] = [
     ),
   },
 ];
-const ItemsTable: FC = () => {
+const UsersTable: FC = () => {
   const [page, setPage] = useState<number>(0);
   const limit = 12;
   const { data, fetchNextPage, fetchPreviousPage, hasNextPage } =
-    trpc.items.all.useInfiniteQuery(
+    trpc.users.all.useInfiniteQuery(
       { limit },
       {
         getNextPageParam: (lastPage) => lastPage.nextCursor?.id,
@@ -42,7 +41,7 @@ const ItemsTable: FC = () => {
   };
   return (
     <>
-      <Table<Item> columns={columns} rows={data?.pages[page]?.items ?? []} />
+      <Table<User> columns={columns} rows={data?.pages[page]?.users ?? []} />
       <Paginator
         pagesCount={Math.ceil((data?.pages[page]?.count ?? 0) / limit)}
         onForwardPage={
@@ -55,4 +54,4 @@ const ItemsTable: FC = () => {
   );
 };
 
-export default ItemsTable;
+export default UsersTable;

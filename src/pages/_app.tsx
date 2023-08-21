@@ -12,22 +12,17 @@ type AppPropsWithLayout = AppProps & {
   Component: NextPageWithLayout;
 };
 
-const MyApp: FC<AppPropsWithLayout> = ({ Component, pageProps }) => (
-  <UserProvider>
-    {Component.Layout ? (
-      <Component.Layout>
-        <NotificationProvider>
+const MyApp: FC<AppPropsWithLayout> = ({ Component, pageProps }) => {
+  const Layout = Component.Layout ?? StandardLayout;
+  return (
+    <UserProvider>
+      <NotificationProvider>
+        <Layout>
           <Component {...pageProps} />
-        </NotificationProvider>
-      </Component.Layout>
-    ) : (
-      <StandardLayout>
-        <NotificationProvider>
-          <Component {...pageProps} />
-        </NotificationProvider>
-      </StandardLayout>
-    )}
-  </UserProvider>
-);
+        </Layout>
+      </NotificationProvider>
+    </UserProvider>
+  );
+};
 
 export default trpc.withTRPC(MyApp);

@@ -1,5 +1,5 @@
 import { withPageAuthRequired } from "@auth0/nextjs-auth0";
-import ItemsTable from "@components/items/Table";
+import ItemsTable from "@components/users/Table";
 import DashboardLayout from "@layouts/DashboardLayout";
 import type { NextPageWithLayout } from "@utils/pageLayout";
 

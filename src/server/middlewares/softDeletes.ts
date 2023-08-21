@@ -8,7 +8,7 @@ interface SoftDeleteMiddlewareParams extends Prisma.MiddlewareParams {
   };
 }
 
-const MODELS: Prisma.ModelName[] = ["Item", "Store", "User"];
+const MODELS: Prisma.ModelName[] = ["User"];
 
 const softDelete: Prisma.Middleware = async (
   params: SoftDeleteMiddlewareParams,

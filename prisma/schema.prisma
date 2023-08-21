@@ -16,74 +16,174 @@ enum StoreType {
 }
 
 model User {
-  id                String     @id @default(uuid()) @db.Uuid
-  name              String
-  givenName         String?
-  familyName        String?
-  nickname          String?
-  email             String     @unique
-  telephone         String?
-  picture           String?
-  verified          Boolean    @default(false)
-  stores            Store[]    @relation("OwnStores")
-  createdStores     Store[]    @relation("CreatedStores")
-  createdItems      Item[]     @relation("CreatedItems")
-  createdCategories Category[] @relation("CreatedCategories")
-  createdAt         DateTime   @default(now())
-  updatedAt         DateTime   @updatedAt
-  deletedAt         DateTime?
-}
-
-model Store {
-  id          String    @id @default(uuid()) @db.Uuid
-  owner       User      @relation("OwnStores", fields: [ownerId], references: [id])
-  ownerId     String    @db.Uuid
-  name        String
-  description String
-  type        StoreType @default(PERSONAL)
-  creator     User      @relation("CreatedStores", fields: [creatorId], references: [id], onDelete: Cascade)
-  creatorId   String    @db.Uuid
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
-  items       Item[]
-  deletedAt   DateTime?
-}
-
-model Item {
-  id         String              @id @default(uuid()) @db.Uuid
+  id         String    @id @default(uuid()) @db.Uuid
   name       String
-  description String             @default("no description")
-  creator    User                @relation("CreatedItems", fields: [creatorId], references: [id], onDelete: Cascade)
-  creatorId  String              @db.Uuid
-  createdAt  DateTime            @default(now())
-  updatedAt  DateTime            @updatedAt
-  store      Store               @relation(fields: [storeId], references: [id])
-  price      Float
+  givenName  String?
+  familyName String?
+  nickname   String?
+  email      String    @unique
+  telephone  String?
   picture    String?
-  categories CategoriesOnItems[]
-  storeId    String              @db.Uuid
+  isRoot     Boolean   @default(false)
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
   deletedAt  DateTime?
+
+  groups              UserGroup[]
+  pipelines           Pipeline[]
+  pipelinePermissions PipelinePermission[] @relation("UserPipelineEntity")
+  DealEvent           DealEvent[]
+  Goal                Goal[]
 }
 
-model CategoriesOnItems {
-  item       Item     @relation(fields: [itemId], references: [id])
-  itemId     String @db.Uuid
-  category   Category @relation(fields: [categoryId], references: [id])
-  categoryId String   @db.Uuid // relation scalar field (used in the `@relation` attribute above)
+model UserGroup {
+  user       User     @relation(fields: [userId], references: [id])
+  userId     String   @db.Uuid
+  group      Group    @relation(fields: [groupId], references: [id])
+  groupId    String   @db.Uuid
   assignedAt DateTime @default(now())
-  assignedBy String   @db.Uuid
+  assignedBy String
 
-  @@id([itemId, categoryId])
+  @@id([userId, groupId])
 }
 
-model Category {
-  id        String              @id @default(uuid()) @db.Uuid
-  name      String
-  creator   User                @relation("CreatedCategories", fields: [creatorId], references: [id])
-  creatorId String              @db.Uuid
-  createdAt DateTime            @default(now())
-  updatedAt DateTime            @updatedAt
-  items     CategoriesOnItems[]
-  storeId   String              @db.Uuid
+model Group {
+  id                  String               @id @default(uuid()) @db.Uuid
+  users               UserGroup[]
+  pipelinePermissions PipelinePermission[] @relation("GroupPipelineEntity")
+}
+
+model Lead {
+  id        String    @id @default(uuid()) @db.Uuid
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deals Deal[]
   deletedAt DateTime?
+}
+
+model LeadTemplate {
+  id                 String              @id @default(uuid()) @db.Uuid
+  name               String              @unique
+  leadTemplateFields LeadTemplateField[]
+}
+
+model LeadTemplateField {
+  id             String       @id @default(uuid()) @db.Uuid
+  leadTemplateId String       @db.Uuid
+  leadTemplate   LeadTemplate @relation(fields: [leadTemplateId], references: [id])
+  name           String
+  type           String
+}
+
+model Deal {
+  id           String  @id @default(uuid()) @db.Uuid
+  amount       Decimal @db.Money
+  pipelineId   String  @db.Uuid
+  leadId String @db.Uuid
+  lead Lead @relation(fields: [leadId], references: [id])
+  currentStage String
+}
+
+model Pipeline {
+  id               String               @id @default(uuid()) @db.Uuid
+  stages           Stage[]
+  createdBy        User                 @relation(fields: [createdById], references: [id])
+  createdById      String               @db.Uuid
+  PermissionByUser PipelinePermission[]
+}
+
+model Role {
+  id          String               @id @default(uuid()) @db.Uuid
+  name        String
+  permissions PipelinePermission[]
+}
+
+model PipelinePermission {
+  entityId   String     @db.Uuid
+  user       User?      @relation("UserPipelineEntity", fields: [entityId], references: [id], map: "entity_user_id")
+  group      Group?     @relation("GroupPipelineEntity", fields: [entityId], references: [id], map: "entity_group_id")
+  pipelineId String     @db.Uuid
+  pipeline   Pipeline   @relation(fields: [pipelineId], references: [id])
+  role       Role       @relation(fields: [roleId], references: [id])
+  roleId     String     @db.Uuid
+  entityType EntityType
+
+  @@id([entityId, pipelineId])
+}
+
+model Stage {
+  id         String   @id @default(uuid()) @db.Uuid
+  name       String
+  pipelineId String   @db.Uuid
+  pipeline   Pipeline @relation(fields: [pipelineId], references: [id])
+  priority   Int
+}
+
+model StageItem {
+  id String @id @default(uuid()) @db.Uuid
+}
+
+model StageRule {
+  id String @id @default(uuid()) @db.Uuid
+}
+
+model StageTrigger {
+  id String @id @default(uuid()) @db.Uuid
+}
+
+model StageTriggerType {
+  id String @id @default(uuid()) @db.Uuid
+}
+
+model DealEvent {
+  id              String         @id @default(uuid()) @db.Uuid
+  dealId          String
+  stageId         String
+  pipelineId      String
+  user            User           @relation(fields: [userId], references: [id])
+  data            DealEventData? @relation(fields: [dealEventDataId], references: [id])
+  createdAt       DateTime       @default(now())
+  userId          String         @db.Uuid
+  dealEventDataId String?        @db.Uuid
+}
+
+model DealEventData {
+  id        String      @id @default(uuid()) @db.Uuid
+  data      Json
+  DealEvent DealEvent[]
+}
+
+model Tag {
+  id     String @id @default(uuid()) @db.Uuid
+  name String @db.Uuid
+}
+
+model Trigger {
+  id String @id @default(uuid()) @db.Uuid
+}
+
+model Metric {
+  id   String @id @default(uuid()) @db.Uuid
+  name String
+}
+
+model Goal {
+  id   String @id @default(uuid()) @db.Uuid
+  user User   @relation(fields: [subjectId], references: [id])
+  subjectId String      @db.Uuid
+  metric    String      @db.Uuid
+  period    PeriodType?
+  value     Decimal     @db.Money
+}
+
+enum PeriodType {
+  YEAR
+  WEEK
+  MONTH
+  CUSTOM
+}
+
+enum EntityType {
+  USER
+  GROUP
 }

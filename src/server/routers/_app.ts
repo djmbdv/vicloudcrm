@@ -1,13 +1,11 @@
 import { router } from "@server/trpc";
 
-import itemsRouter from "./items";
 import handleAuthRouter from "./session";
-import storesRouter from "./stores";
+import usersRouter from "./users";
 
 export const appRouter = router({
-  items: itemsRouter,
+  users: usersRouter,
   session: handleAuthRouter,
-  stores: storesRouter,
 });
 
 export type AppRouter = typeof appRouter;
