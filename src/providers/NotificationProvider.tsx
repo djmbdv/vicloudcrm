@@ -1,4 +1,3 @@
-import { XCircleIcon } from "@heroicons/react/24/solid";
 import type { Dispatch, FC, PropsWithChildren, SetStateAction } from "react";
 import { createContext, useContext, useEffect, useMemo, useState } from "react";
 
@@ -33,7 +32,7 @@ const NotificationProvider: FC<PropsWithChildren> = ({ children }) => {
   useEffect(() => {
     const timer = setTimeout(
       () => setNotifications(notifications.slice(1)),
-      1500
+      1000
     );
     return () => clearTimeout(timer);
   }, [notifications]);
@@ -80,7 +79,7 @@ const NotificationProvider: FC<PropsWithChildren> = ({ children }) => {
                   onClick={(): void => deleteAction(n)}
                 >
                   <span className="sr-only">Close</span>
-                  <XCircleIcon />
+                  <p>x</p>
                 </button>
               </div>
             </div>

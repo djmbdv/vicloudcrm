@@ -7,8 +7,9 @@ import type { NextPage } from "next";
 const Home: NextPage = () => {
   const { addNotification } = useNotification();
   const createNotification = (): void => {
+    const number = Math.round(Math.random() * 10);
     const noti: NotificationMessage = {
-      message: `hello world${Math.random()}`,
+      message: `hello world ${number}`,
     };
     addNotification(noti);
   };

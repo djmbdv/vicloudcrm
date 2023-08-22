@@ -2,7 +2,7 @@ import Button from "@components/Button";
 import Paginator from "@components/Paginator";
 import type { Column } from "@components/Table";
 import Table from "@components/Table";
-import { TrashIcon } from "@heroicons/react/24/solid";
+import DeleteIcon from "@mui/icons-material/Delete";
 import type { User } from "@server/prismaClient";
 import trpc from "@utils/trpc";
 import type { FC } from "react";
@@ -15,7 +15,7 @@ const columns: Column<User>[] = [
     title: "actions",
     render: () => (
       <Button>
-        <TrashIcon className="h-6 w-6 text-white" />
+        <DeleteIcon />
       </Button>
     ),
   },

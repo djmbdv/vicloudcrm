@@ -1,12 +1,13 @@
+
 import { withPageAuthRequired } from "@auth0/nextjs-auth0";
-import ItemsTable from "@components/users/Table";
+import UsersTable from "@components/users/Table";
 import DashboardLayout from "@layouts/DashboardLayout";
 import type { NextPageWithLayout } from "@utils/pageLayout";
 
-const DashboardItemPage: NextPageWithLayout = () => <ItemsTable />;
+const DashboardUserPage: NextPageWithLayout = () => <UsersTable />;
 
 export const getServerSideProps = withPageAuthRequired();
 
-DashboardItemPage.Layout = DashboardLayout;
+DashboardUserPage.Layout = DashboardLayout;
 
-export default DashboardItemPage;
+export default DashboardUserPage;
